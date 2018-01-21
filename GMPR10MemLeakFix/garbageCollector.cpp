@@ -3,7 +3,6 @@
 
 std::map<DWORD, std::list<watchObject>*> GarbageCollector::threadObjectLists;
 HANDLE GarbageCollector::mutex = CreateMutex(NULL, FALSE, NULL);
-DWORD stackMax = 0;
 
 void GarbageCollector::addObject(zString* object)
 {
@@ -26,18 +25,10 @@ void GarbageCollector::addObject(zString* object)
 	
 	
 	threadObjList->push_front(newObject);
-	//Clean up old objects
-	// (Based on Stack Pointer)
-	while (!threadObjList->empty() && threadObjList->back().stackPointer < (DWORD)currentStackPointer)
-	{
-		DWORD zStringAddr = (DWORD)&((threadObjList->back())); //Take out of scope object.
-		zStringAddr += 4; //Skip stack pointer, which is no part of zString object.
-		((zString*)(zStringAddr))->~zString(); //Call the official zString Destructor for the zString.
-		threadObjList->pop_back(); //Remove the object from garbage collector's watchlist.
-	}
+	
 	//Clean up old objects
 	// (Based on Max Lifetime)
-	while (currentTicks - threadObjList->back().timestamp > 10000) //If this guy gets never deleted
+	while (currentTicks - threadObjList->back().timestamp > 3000) //If this guy gets never deleted
 	{
 		DWORD zStringAddr = (DWORD)&((threadObjList->back())); //Take out of scope object.
 		zStringAddr += 4; //Skip stack pointer, which is no part of zString object.
