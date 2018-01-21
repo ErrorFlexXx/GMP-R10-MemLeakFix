@@ -26,6 +26,9 @@ public:
 	
 	//! constructor to create a zString from an integer variable.
 	zString(int str);
+
+	//! assign operator to copy contents from one zString into another.
+	//zString& operator= (const zString &zstr);
 	
 	//! the (mostly forgotten D:) destructor of a zString.
 	~zString();

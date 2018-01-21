@@ -60,6 +60,10 @@ DWORD WINAPI MemLeakFix::workerFunction(LPVOID lpThreadParameter)
 			zString* (__thiscall zStringWrapper::*ConstructorInt)(int) = &zStringWrapper::zStringWrapperIC;
 			Hook(FuncOffsets::zStringCreateIntTrampoline, (DWORD)((void*&)ConstructorInt)); //Hook const char constr.
 			
+			/* This one here does remove zStrings that shouldn't be removed so that characters got named FONT_DEFAULT ;) */
+			//zString& (__thiscall zStringWrapper::*assignOperator)(const zString&) = &zStringWrapper::operator=;
+			//Hook(FuncOffsets::zStringOperatorAssign, (DWORD)((void*&)assignOperator));
+
 			fixed = true; //Hooks placed - Do not hook again.
 		}
 	}

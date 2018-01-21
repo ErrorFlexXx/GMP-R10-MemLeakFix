@@ -14,6 +14,7 @@ class FuncOffsets
 public:
 	static const DWORD zStringCreateConstCharTrampoline	= 0x0001560;
 	static const DWORD zStringCreateIntTrampoline		= 0x0034e70;
+	static const DWORD zStringOperatorAssign			= 0x0041640;
 };
 
 /** Class to apply this fix and handle the loading of this module.

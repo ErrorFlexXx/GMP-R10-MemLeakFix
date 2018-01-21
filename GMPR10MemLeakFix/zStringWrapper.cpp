@@ -19,3 +19,13 @@ zString* zStringWrapper::zStringWrapperIC(int str)
 	GarbageCollector::addObject(calledForAddr); //Add to garbage collector.
 	return calledForAddr;
 }
+
+/*
+zString& zStringWrapper::operator= (const zString &zstr)
+{
+	zString *calledForAddr = ((zString*)(this)); //Get address, which this constr. is called for
+	*calledForAddr = zstr; //Call of assignment operator
+	GarbageCollector::addObject(calledForAddr); //Add to garbage collector.
+	return *calledForAddr;
+}
+*/

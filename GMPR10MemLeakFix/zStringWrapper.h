@@ -10,6 +10,6 @@ public:
 	//Hook targets:
 	zString* zStringWrapperCCC(const char*);	//!< zStringWrapperConstCharConstructor
 	zString* zStringWrapperIC(int str);			//!< zStringWrapperIntConstructor
-	zString& operator= (const zString &zstr);	//!< zStringWrapperAssignOperator
+	//zString& operator= (const zString &zstr);	//!< zStringWrapperAssignOperator
 };
 
