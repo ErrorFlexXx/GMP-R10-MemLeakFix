@@ -3,6 +3,7 @@
 
 std::map<DWORD, std::list<watchObject>*> GarbageCollector::threadObjectLists;
 HANDLE GarbageCollector::mutex = CreateMutex(NULL, FALSE, NULL);
+DWORD stackMax = 0;
 
 void GarbageCollector::addObject(zString* object)
 {
@@ -12,6 +13,7 @@ void GarbageCollector::addObject(zString* object)
 	__asm { mov currentStackPointer, ESP }
 	DWORD currentThreadID = GetCurrentThreadId();
 	std::list<watchObject> *threadObjList = getListOfThread(currentThreadID);
+	DWORD currentTicks = GetTickCount();
 
 	watchObject newObject; //Create new watch Object
 	newObject.stackPointer = (DWORD)currentStackPointer;
@@ -20,16 +22,28 @@ void GarbageCollector::addObject(zString* object)
 	newObject.length = object->length;		//official zString destructor.
 	newObject.ptr = object->ptr;
 	newObject.ressource = object->resource;
+	newObject.timestamp = currentTicks;
 	
-	//Delete out of scope objects
-	while (!threadObjList->empty() && threadObjList->front().stackPointer < (DWORD)currentStackPointer)
+	
+	threadObjList->push_front(newObject);
+	//Clean up old objects
+	// (Based on Stack Pointer)
+	while (!threadObjList->empty() && threadObjList->back().stackPointer < (DWORD)currentStackPointer)
 	{
-		DWORD zStringAddr = (DWORD)&((threadObjList->front())); //Take out of scope object.
+		DWORD zStringAddr = (DWORD)&((threadObjList->back())); //Take out of scope object.
 		zStringAddr += 4; //Skip stack pointer, which is no part of zString object.
 		((zString*)(zStringAddr))->~zString(); //Call the official zString Destructor for the zString.
-		threadObjList->pop_front(); //Remove the object from garbage collector's watchlist.
+		threadObjList->pop_back(); //Remove the object from garbage collector's watchlist.
 	}
-	threadObjList->push_front(newObject); //Add object to garbage collection
+	//Clean up old objects
+	// (Based on Max Lifetime)
+	while (currentTicks - threadObjList->back().timestamp > 10000) //If this guy gets never deleted
+	{
+		DWORD zStringAddr = (DWORD)&((threadObjList->back())); //Take out of scope object.
+		zStringAddr += 4; //Skip stack pointer, which is no part of zString object.
+		((zString*)(zStringAddr))->~zString(); //Call the official zString Destructor for the zString.
+		threadObjList->pop_back();
+	}
 
 	ReleaseMutex(mutex); //Release lock
 }

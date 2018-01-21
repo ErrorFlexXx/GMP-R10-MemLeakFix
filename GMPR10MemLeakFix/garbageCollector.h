@@ -16,6 +16,7 @@ struct watchObject
 	DWORD ptr;			/**< is currently unknown. */
 	int length;			/**< represents the length of the string */
 	char* ressource;	/**< Actual garbage at end of life */
+	DWORD timestamp;	/**< Time at which the object was created */
 };
 
 /** an abstract class to handle cleanup of unhandled allocated resources
