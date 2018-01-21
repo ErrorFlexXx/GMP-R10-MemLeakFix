@@ -33,12 +33,9 @@ Currently none. If you experience some problems, please create an issue in this 
 
 ## (Some) Technical background
 
-The GMP-R10 multiplayer is using codeof Gothic to create zString objects and feed them into the Gothic Engine.
+The GMP-R10 multiplayer is using code of gothic to create zString objects to call functions of gothic with them.
+Sadly the interface inside the GMP, that represents a zString object, has no destructor defined.
+Therefore resources are allocated from the zString constructor and pointers to this resources are placed inside the object, but if the objects get destroyed, nobody frees the resources inside the object.
 
-Sadly the interface inside the GMP to call constructors and functions has no destructor defined for a zString.
-
-Therefore resources are allocated and pointers to this resources are placed from the original constructors of gothic, but if those zStrings get destroyed, when they went out of scope, no one will free the allocated resources.
-
-This project hooks the function thats calling the zString constructor and does the creation itself. Additionally the whole zString object is saved and registered in an own garbage collector, that calls the zString destructor for added objects periodically.
-
-This method works, because there are no heap objects created from the gmp. Otherwise this fix would free resources, that are used later.
+This project hooks the functions, that are calling the zString constructors and does the constructor call itself. Additionally the whole zString object is saved and registered in an own garbage collector, that calls the zString destructor for added objects periodically.
+Because of all objects are created on the stack from the gmp, this is a possible solution to destroy the objects. Otherwise it would free resources, that aren't out of scope and are currently used.
